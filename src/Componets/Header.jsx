@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import rectangle1 from "/images/rectangle1.png";
 import rectangle2 from "/images/rectangle2.png";
 import rectangle3 from "/images/rectangle3.png";
@@ -10,22 +11,22 @@ import rectangle8 from "/images/rectangle8.png";
 import rectangle9 from "/images/rectangle9.png";
 
 const Header = () => {
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate(); 
+  const [showSearch, setShowSearch] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-950 to-blue-800 text-white">
-      {/* Header Section */}
+      
       <header className="flex justify-between items-center p-4 sm:p-6">
         <div className="text-2xl font-bold">Password Manager</div>
 
-        {/* Search Bar - Visible on Tablet & Desktop */}
         <input
           type="text"
           placeholder="Search..."
-          className="hidden sm:block w-48 sm:w-64 px-4 py-2 rounded-lg bg-blue-900 border border-blue-950 text-white focus:outline-none"
+          className="hidden sm:block w-48 sm:w-64 px-4 py-2 rounded-lg bg-blue-900 border border-blue-950 text-white focus:outline-none" onClick={() => setShowSearch(!showSearch)}
         />
 
-        {/* Navigation Links */}
+        
         <nav className="hidden sm:flex gap-x-6">
           <button className="text-white" onClick={() => navigate("/login")}>
             Login
@@ -36,7 +37,7 @@ const Header = () => {
         </nav>
       </header>
 
-      {/* Hero Section */}
+      
       <section className="flex flex-col md:flex-row items-center justify-center text-center md:text-left p-6 sm:p-10">
         <div className="max-w-lg">
           <span className="px-4 py-1 bg-blue-900 text-sm rounded-full">
@@ -53,7 +54,7 @@ const Header = () => {
           </button>
         </div>
 
-        {/* Image Container */}
+        
         <div className="relative mt-10 md:mt-0 w-48 sm:w-64 h-48 sm:h-64 flex items-center justify-center">
           <div className="w-32 sm:w-40 h-32 sm:h-40 bg-gray-500 rounded-lg flex items-center justify-center">
             <img
@@ -63,7 +64,7 @@ const Header = () => {
             />
           </div>
 
-          {/* Floating Security Icons */}
+          
           <img src={rectangle1} alt="Security Icon 1" className="absolute -top-4 left-6 w-8 sm:w-12 h-8 sm:h-12" />
           <img src={rectangle2} alt="Security Icon 2" className="absolute -top-4 right-6 w-8 sm:w-12 h-8 sm:h-12" />
           <img src={rectangle3} alt="Security Icon 3" className="absolute left-0 bottom-8 w-8 sm:w-12 h-8 sm:h-12" />

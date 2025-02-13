@@ -1,9 +1,24 @@
 import React from "react";
+import  { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Userdata = () => {
   const navigate = useNavigate();
-
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  
+  const [passwordEntries, setPasswordEntries] = useState([
+    { title: "Example", username: "User123", url: "https://example.com", notes: "Some notes", modified: "Today" }
+  ]);
+  const addPassword = () => {
+    setPasswordEntries([...passwordEntries, {
+      title: "New Entry",
+      username: "NewUser",
+      url: "https://newsite.com",
+      notes: "New notes",
+      modified: "Just now"
+    }]);
+  }
   return (
     <div className="bg-[#0E1A60] min-h-screen text-white p-4 md:p-6 w-screen">
       {/* Header */}
@@ -19,13 +34,15 @@ const Userdata = () => {
           <input
             type="text"
             placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="bg-[#101E71] text-white p-2 rounded-md w-full outline-none"
           />
         </div>
 
         {/* Action Buttons */}
         <div className="flex space-x-2">
-          <button className="bg-purple-500 p-2 rounded-full" onClick={() => navigate("/generate")}>
+          <button className="bg-purple-500 p-2 rounded-full" onClick={() => navigate("/generate")} >
             +
           </button>
           <button className="bg-purple-500 p-2 rounded-full" onClick={() => navigate("/login")}>
@@ -57,28 +74,38 @@ const Userdata = () => {
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b hover:bg-[#0E1A60]">
-                <td className="p-2">🔒</td>
-                <td className="p-2">Example</td>
-                <td className="p-2">User123</td>
-                <td className="p-2">
-                  <a href="https://example.com" className="text-blue-400">
-                    example.com
-                  </a>
-                </td>
-                <td className="p-2">Some notes</td>
-                <td className="p-2">Today</td>
-              </tr>
+              {passwordEntries.length > 0 ? (
+                passwordEntries.filter(entry =>
+                  entry.title.toLowerCase().includes(searchQuery.toLowerCase())
+                ).map((entry, index) => (
+                  <tr key={index} className="border-b hover:bg-[#0E1A60]">
+                    <td className="p-2">🔒</td>
+                    <td className="p-2">{entry.title}</td>
+                    <td className="p-2">{entry.username}</td>
+                    <td className="p-2">
+                      <a href={entry.url} className="text-blue-400">{entry.url}</a>
+                    </td>
+                    <td className="p-2">{entry.notes}</td>
+                    <td className="p-2">{entry.modified}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="text-center p-4">No passwords saved yet.</td>
+                </tr>
+              )}
             </tbody>
           </table>
 
           {/* Empty State Message */}
-          <div className="flex flex-col items-center mt-10 text-center">
-            <h2 className="text-lg font-bold mt-2">Secure Your First Password with Us</h2>
-            <p className="text-sm text-gray-400 max-w-lg mt-2">
-              Take the first step towards safeguarding your digital world. Add your first password now and experience top-notch security, ease of access, and peace of mind.
-            </p>
-          </div>
+          {passwordEntries.length === 0 && (
+            <div className="flex flex-col items-center mt-10 text-center">
+              <h2 className="text-lg font-bold mt-2">Secure Your First Password with Us</h2>
+              <p className="text-sm text-gray-400 max-w-lg mt-2">
+                Take the first step towards safeguarding your digital world. Add your first password now and experience top-notch security, ease of access, and peace of mind.
+              </p>
+            </div>
+          )}
         </section>
       </div>
     </div>
