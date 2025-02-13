@@ -1,3 +1,4 @@
+import { Shield,Settings, Eye, User } from "lucide-react";
 import React from "react";
 import  { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -21,15 +22,16 @@ const Userdata = () => {
   }
   return (
     <div className="bg-[#0E1A60] min-h-screen text-white p-4 md:p-6 w-screen">
-      {/* Header */}
+     
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
+        <Shield className="text-white " size={40} />
           <h1 className="text-xl font-bold cursor-pointer" onClick={() => navigate("/")}>
             Password Manager
           </h1>
         </div>
 
-        {/* Search Bar */}
+       
         <div className="relative w-full md:w-1/3">
           <input
             type="text"
@@ -40,27 +42,29 @@ const Userdata = () => {
           />
         </div>
 
-        {/* Action Buttons */}
+        
         <div className="flex space-x-2">
           <button className="bg-purple-500 p-2 rounded-full" onClick={() => navigate("/generate")} >
-            +
+            <Settings className="text-gray-300" size={20} />
           </button>
           <button className="bg-purple-500 p-2 rounded-full" onClick={() => navigate("/login")}>
-            📁
+            <Eye className="text-gray-300" size={20} />
           </button>
-          <button className="bg-purple-500 p-2 rounded-full">📁</button>
+          <button className="bg-purple-500 p-2 rounded-full">
+            <User className="text-gray-300" size={20} />
+          </button>
         </div>
       </header>
 
-      {/* Main Section */}
+     
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
-        {/* Sidebar */}
+       
         <aside className="bg-[#101E71] p-4 rounded-lg hidden md:block">
           <h2 className="font-bold mb-4">Folders</h2>
           <button className="text-purple-500">+ Add Folder</button>
         </aside>
 
-        {/* Password Table */}
+        
         <section className="bg-[#101E71] p-4 rounded-lg col-span-3 w-full overflow-x-auto">
           <table className="w-full min-w-[600px]">
             <thead>
@@ -97,7 +101,7 @@ const Userdata = () => {
             </tbody>
           </table>
 
-          {/* Empty State Message */}
+          
           {passwordEntries.length === 0 && (
             <div className="flex flex-col items-center mt-10 text-center">
               <h2 className="text-lg font-bold mt-2">Secure Your First Password with Us</h2>

@@ -1,3 +1,4 @@
+import { Shield, } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import rectangle1 from "/images/rectangle1.png";
@@ -18,7 +19,8 @@ const Header = () => {
     <div className="min-h-screen bg-gradient-to-r from-blue-950 to-blue-800 text-white">
       
       <header className="flex justify-between items-center p-4 sm:p-6">
-        <div className="text-2xl font-bold">Password Manager</div>
+      <Shield className="text-white ml-30" size={40} />
+        <div className="text-2xl font-bold mr-90">Password Manager</div>
 
         <input
           type="text"
@@ -28,7 +30,7 @@ const Header = () => {
 
         
         <nav className="hidden sm:flex gap-x-6">
-          <button className="text-white" onClick={() => navigate("/login")}>
+          <button className="text-black" onClick={() => navigate("/login")}>
             Login
           </button>
           <button className="bg-blue-500 text-black px-4 py-2 rounded-lg">
