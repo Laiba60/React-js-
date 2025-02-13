@@ -2,7 +2,7 @@ const Heromid = () => {
   return (
     <div className="flex flex-col sm:flex-row items-center justify-center min-h-screen bg-gradient-to-r from-purple-950 to-blue-950 p-6 sm:p-12">
       
-      {/* Left Section */}
+      
       <div className="max-w-4xl w-full text-black text-center sm:text-left">
         <button className="px-4 py-2 border rounded-lg mb-6">Try our Additional Solution</button>
         <h1 className="text-3xl sm:text-5xl font-bold leading-tight">Password without saving password</h1>
@@ -14,7 +14,7 @@ const Heromid = () => {
         </p>
       </div>
 
-      {/* Right Section: Form */}
+      
       <div className="bg-blue-950 p-6 rounded-2xl shadow-lg w-full max-w-lg mt-10 sm:mt-0 sm:ml-10">
         <label className="block text-gray-300 mb-1">Your Full Name</label>
         <input type="text" placeholder="Name" className="w-full p-3 rounded-lg bg-blue-900 text-white mb-4" />
