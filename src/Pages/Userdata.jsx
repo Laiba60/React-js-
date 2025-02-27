@@ -2,6 +2,8 @@ import { Shield,Settings, Eye, User } from "lucide-react";
 import React from "react";
 import  { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import  {  useEffect } from "react";
+import api from "../api";
 
 const Userdata = () => {
   const navigate = useNavigate();
@@ -11,15 +13,49 @@ const Userdata = () => {
   const [passwordEntries, setPasswordEntries] = useState([
     { title: "Example", username: "User123", url: "https://example.com", notes: "Some notes", modified: "Today" }
   ]);
-  const addPassword = () => {
-    setPasswordEntries([...passwordEntries, {
-      title: "New Entry",
-      username: "NewUser",
-      url: "https://newsite.com",
-      notes: "New notes",
-      modified: "Just now"
-    }]);
-  }
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await api.get("/folders");
+        setPasswordEntries(response.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const addFolder = async () => {
+    if (!newFolderName.trim()) {
+      alert("Folder name cannot be empty!");
+      return;
+    }
+  
+    try {
+      const response = await api.post(
+        "/folders/",
+        { name: newFolderName },  
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+  
+      
+      setFolders([...folders, response.data]);
+      setNewFolderName("");  
+    } catch (error) {
+      console.error("Error creating folder:", error);
+    }
+  };
+  
+
+ 
   return (
     <div className="bg-[#0E1A60] min-h-screen text-white p-4 md:p-6 w-screen">
      
