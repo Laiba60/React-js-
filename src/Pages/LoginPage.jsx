@@ -1,37 +1,31 @@
 import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
-import { generateToken, clearExpiredToken } from "../api";
+import { useGenerateToken, clearExpiredToken } from "../api";
 
 const LoginPage = () => {
   const [keySeed, setKeySeed] = useState("");
   const navigate = useNavigate();
+  const loginMutation = useGenerateToken(); 
 
-  const handleLogin = async () => {
+  const handleLogin = () => {
     if (!keySeed.trim()) {
-      alert("⚠️ Key Seed is required.");
+      alert("Key Seed is required.");
       return;
     }
 
-    try {
-      const tokenData = await generateToken(keySeed);
-      console.log("✅ Token:", tokenData);
-
-      if (!tokenData || !tokenData.token) {
-        throw new Error("Invalid response from API.");
-      }
-
-      localStorage.setItem("authToken", tokenData.token);
-      navigate("/userdata");
-    } catch (error) {
-      console.error("❌ Failed to generate token:", error);
-
-      // If token error occurs, clear storage & ask user to retry
-      if (error.response?.data?.code === "token_not_valid") {
-        clearExpiredToken();
-      }
-
-      alert("⚠️ Invalid Key Seed or Expired Token. Please try again.");
-    }
+    loginMutation.mutate(keySeed.trim(), {
+      onSuccess: (tokenData) => {
+        console.log("Login Successful:", tokenData);
+        navigate("/userdata");
+      },
+      onError: (error) => {
+        console.error("❌ Login Error:", error);
+        if (error.response?.data?.code === "token_not_valid") {
+          clearExpiredToken();
+        }
+        alert("Invalid Key Seed or Expired Token. Please try again.");
+      },
+    });
   };
 
   return (
@@ -50,7 +44,7 @@ const LoginPage = () => {
             Password Manager
           </h1>
           <p className="mb-6">
-            Login to your account with a seed. We handle security in a 
+            Login to your account with a seed. We handle security in a
             privacy-focused, cloud-free, ad-free manner.
           </p>
         </div>
@@ -69,14 +63,19 @@ const LoginPage = () => {
           <button
             className="w-full py-2 mt-4 bg-gradient-to-r from-purple-500 to-purple-700 text-white font-bold rounded-lg hover:opacity-90"
             onClick={handleLogin}
+            disabled={loginMutation.isLoading}
           >
-            Next
+            {loginMutation.isLoading ? "Logging in..." : "Next"}
           </button>
+
           <p className="text-gray-300 mt-4 text-center">
-            Don’t have an account?
-            <a href="#" className="text-purple-400 hover:underline" onClick={() => navigate("/register")}>
+            Don’t have an account?{" "}
+            <span
+              className="text-purple-400 hover:underline cursor-pointer"
+              onClick={() => navigate("/register")}
+            >
               Register
-            </a>
+            </span>
           </p>
         </div>
       </div>

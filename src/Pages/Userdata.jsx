@@ -1,151 +1,69 @@
 import { Shield, Settings, Eye, User, Trash2 } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../api";
 
 const Userdata = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
-  const [folders, setFolders] = useState([]);
-  const [passwordEntries, setPasswordEntries] = useState([]);
   const [editFolderId, setEditFolderId] = useState(null);
-  const [editFolderName, setEditFolderName] = useState(""); 
+  const [editFolderName, setEditFolderName] = useState("");
   const [newFolderName, setNewFolderName] = useState("");
 
-  
-  useEffect(() => {
-    const fetchFolders = async () => {
-      try {
-        const response = await api.get("/folders");
-        console.log("API Response:", JSON.stringify(response.data, null, 2)); 
+  const { data: folders = [], isLoading } = useQuery({
+    queryKey: ["folders"],
+    queryFn: async () => {
+      const response = await api.get("/folders");
+      return response.data.results || [];
+    },
+  });
 
-        if (response.data && Array.isArray(response.data.results)) {
-          setFolders(response.data.results);
-        } else {
-          console.error("Unexpected response format:", JSON.stringify(response.data, null, 2));
-          setFolders([]);
-        }
-      } catch (error) {
-        if (error.response) {
-          console.error("Error fetching folders:", JSON.stringify(error.response.data, null, 2));
-        } else {
-          console.error("Error fetching folders:", error.message);
-        }
-        setFolders([]);
-      }
-    };
-    fetchFolders();
-  }, []);
+  const addFolderMutation = useMutation({
+    mutationFn: async (folderName) => {
+      const response = await api.post("/folders/", { title: folderName }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["folders"]);
+      setNewFolderName("");
+    },
+  });
 
-  
-  const addFolder = async () => {
-    if (!newFolderName.trim()) {
-      alert("Folder name cannot be empty!");
-      return;
-    }
+  const updateFolderMutation = useMutation({
+    mutationFn: async ({ folderId, title }) => {
+      await api.put(`/folders/${folderId}/`, { title }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          "Content-Type": "application/json",
+        },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["folders"]);
+      setEditFolderId(null);
+      setEditFolderName("");
+    },
+  });
 
-    try {
-      const response = await api.post(
-        "/folders/",
-        { title: newFolderName },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      console.log("Folder Created Response:", JSON.stringify(response.data, null, 2));
-
-      if (response.data && response.data.id) {
-        setFolders((prevFolders) => [...prevFolders, response.data]);
-        setNewFolderName(""); 
-      } else {
-        console.error("Unexpected response format:", JSON.stringify(response.data, null, 2));
-        alert("Folder creation was successful but the response format is incorrect.");
-      }
-    } catch (error) {
-      if (error.response) {
-        console.error("Error adding folder:", JSON.stringify(error.response.data, null, 2));
-      } else {
-        console.error("Error adding folder:", error.message);
-      }
-      alert("Failed to add folder. Check the console for details.");
-    }
-  };
-
-  
-  const updateFolder = async (folderId) => {
-    if (!editFolderName.trim()) {
-      alert("Folder name cannot be empty!");
-      return;
-    }
-  
-    try {
-      const response = await api.put(
-        `/folders/${folderId}/`,
-        { title: editFolderName }, 
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-  
-      console.log("Folder Updated Response:", JSON.stringify(response.data, null, 2));
-  
-      if (response.data && response.data.id) {
-        setFolders((prevFolders) =>
-          prevFolders.map((folder) =>
-            folder.id === folderId ? { ...folder, title: editFolderName } : folder 
-          )
-        );
-  
-        setEditFolderId(null); 
-        setEditFolderName(""); 
-      } else {
-        console.error("Unexpected response format:", JSON.stringify(response.data, null, 2));
-        alert("Folder update was successful but the response format is incorrect.");
-      }
-    } catch (error) {
-      if (error.response) {
-        console.error("Error updating folder:", JSON.stringify(error.response.data, null, 2));
-      } else {
-        console.error("Error updating folder:", error.message);
-      }
-      alert("Failed to update folder. Check the console for details.");
-    }
-  };
-  
-
- 
-  const deleteFolder = async (folderId) => {
-    try {
-      const response = await api.delete(`/folders/${folderId}/`, {
+  const deleteFolderMutation = useMutation({
+    mutationFn: async (folderId) => {
+      await api.delete(`/folders/${folderId}/`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
       });
-
-      console.log("Folder Deleted Response:", JSON.stringify(response.data, null, 2));
-
-      if (response.status === 204) { // HTTP status code for successful deletion
-        setFolders((prevFolders) => prevFolders.filter((folder) => folder.id !== folderId));
-      } else {
-        console.error("Unexpected response format:", JSON.stringify(response.data, null, 2));
-        alert("Folder deletion was successful but the response format is incorrect.");
-      }
-    } catch (error) {
-      if (error.response) {
-        console.error("Error deleting folder:", JSON.stringify(error.response.data, null, 2));
-      } else {
-        console.error("Error deleting folder:", error.message);
-      }
-      alert("Failed to delete folder. Check the console for details.");
-    }
-  };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["folders"]);
+    },
+  });
 
   return (
     <div className="bg-[#0E1A60] min-h-screen text-white p-4 md:p-6 w-screen">
@@ -181,84 +99,60 @@ const Userdata = () => {
               onChange={(e) => setNewFolderName(e.target.value)}
               className="bg-gray-200 text-black p-1 rounded-md flex-1"
             />
-            <button onClick={addFolder} className="bg-green-500 px-3 py-1 rounded-md text-white"> Add </button>
+            <button onClick={() => addFolderMutation.mutate(newFolderName)} className="bg-green-500 px-3 py-1 rounded-md text-white"> Add </button>
           </div>
 
-          <ul>
-  {folders.length > 0 ? (
-    folders.map((folder) => (
-      <li key={folder.id} className="flex justify-between items-center mb-2">
-        {editFolderId === folder.id ? (
-          <input
-            type="text"
-            value={editFolderName}
-            onChange={(e) => setEditFolderName(e.target.value)}
-            className="bg-gray-200 text-black p-1 rounded-md"
-          />
-        ) : (
-          
-          <span>{folder.title}</span> 
-        )}
-
-                  <div className="flex items-center space-x-2">
-                    <button
-                      className="text-blue-400"
-                      onClick={() => {
-                        if (editFolderId === folder.id) {
-                          updateFolder(folder.id); 
-                        } else {
-                          setEditFolderId(folder.id);
-                          setEditFolderName(folder.title); 
-                        }
-                      }}
-                    >
-                      {editFolderId === folder.id ? "Save" : "Edit"}
-                    </button>
-                    <button className="text-red-400" onClick={() => deleteFolder(folder.id)}> 
-                      <Trash2 size={16} /> 
-                    </button>
-                  </div>
-                </li>
-              ))
-            ) : (
-              <p>No folders available</p>
-            )}
-          </ul>
-        </aside>
-
-        
-        <section className="bg-[#101E71] p-4 rounded-lg col-span-3 w-full overflow-x-auto">
-          <table className="w-full min-w-[600px]">
+          <table className="w-full border-collapse border border-gray-300 text-white">
             <thead>
-              <tr className="border-b bg-[#010E59]">
-                <th className="p-2">✔</th>
-                <th className="p-2">Title</th>
-                <th className="p-2">Username</th>
-                <th className="p-2">URL</th>
-                <th className="p-2">Notes</th>
-                <th className="p-2">Modified</th>
+              <tr className="bg-gray-700">
+                <th className="border border-gray-300 p-2">Folder Name</th>
+                <th className="border border-gray-300 p-2">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {passwordEntries.length > 0 ? (
-                passwordEntries
-                  .filter((entry) => entry.title.toLowerCase().includes(searchQuery.toLowerCase()))
-                  .map((entry, index) => (
-                    <tr key={index} className="border-b hover:bg-[#0E1A60]">
-                      <td className="p-2">🔒</td>
-                      <td className="p-2">{entry.title}</td>
-                      <td className="p-2">{entry.username}</td>
-                      <td className="p-2"> <a href={entry.url} className="text-blue-400"> {entry.url} </a> </td>
-                      <td className="p-2">{entry.notes}</td>
-                      <td className="p-2">{entry.modified}</td>
-                    </tr>
-                  ))
+              {isLoading ? (
+                <tr><td colSpan="2" className="text-center p-2">Loading...</td></tr>
+              ) : folders.length > 0 ? (
+                folders.map((folder) => (
+                  <tr key={folder.id} className="border border-gray-300">
+                    <td className="border border-gray-300 p-2">
+                      {editFolderId === folder.id ? (
+                        <input
+                          type="text"
+                          value={editFolderName}
+                          onChange={(e) => setEditFolderName(e.target.value)}
+                          className="bg-gray-200 text-black p-1 rounded-md"
+                        />
+                      ) : (
+                        folder.title
+                      )}
+                    </td>
+                    <td className="border border-gray-300 p-2">
+                      <button
+                        className="text-blue-400 mr-2"
+                        onClick={() => {
+                          if (editFolderId === folder.id) {
+                            updateFolderMutation.mutate({ folderId: folder.id, title: editFolderName });
+                          } else {
+                            setEditFolderId(folder.id);
+                            setEditFolderName(folder.title);
+                          }
+                        }}
+                      >
+                        {editFolderId === folder.id ? "Save" : "Edit"}
+                      </button>
+                      <button className="text-red-400" onClick={() => deleteFolderMutation.mutate(folder.id)}> 
+                        <Trash2 size={16} /> 
+                      </button>
+                    </td>
+                  </tr>
+                ))
               ) : (
-                <tr><td colSpan="6" className="text-center p-4">No password entries available</td></tr>
+                <tr><td colSpan="2" className="text-center p-2">No folders available</td></tr>
               )}
             </tbody>
           </table>
-        </section>
+        </aside>
       </div>
     </div>
   );
