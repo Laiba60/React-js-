@@ -11,7 +11,7 @@ const api = axios.create({
   },
 });
 
-// Attach Authorization header if token exists
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("authToken");
   if (token) {
@@ -20,8 +20,8 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Function to generate a token
-export const generateToken = async (passPhrase) => {
+
+const generateToken = async (passPhrase) => {
   try {
     const response = await api.post("/user/generate-token/", {
       pass_phrase: passPhrase.trim(),
@@ -29,13 +29,13 @@ export const generateToken = async (passPhrase) => {
 
     console.log("🔍 Full API Response:", response.data);
 
-    if (!response.data || !response.data.access) {
+    if (!response.data?.access) {
       throw new Error("Invalid API response. Missing access token.");
     }
 
     console.log(" New Token Generated:", response.data.access);
 
-    // Save token to localStorage
+   
     localStorage.setItem("authToken", response.data.access);
 
     return { token: response.data.access };
@@ -46,6 +46,30 @@ export const generateToken = async (passPhrase) => {
 };
 
 
+const generatePassphrase = async () => {
+  try {
+    const response = await api.post("/user/generate-pass-phrase/");
+
+    console.log("API Full Response:", response.data); 
+
+    
+    if (!response.data?.pass_phrase) {
+      throw new Error(
+        `Invalid API response. Expected 'pass_phrase', but got: ${JSON.stringify(response.data)}`
+      );
+    }
+
+    console.log("Generated Passphrase:", response.data.pass_phrase);
+    return { seed: response.data.pass_phrase }; 
+  } catch (error) {
+    console.error(" Error generating passphrase:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+
+
+
 export const clearExpiredToken = () => {
   console.warn(" Token is invalid or expired. Clearing storage...");
   localStorage.removeItem("authToken");
@@ -53,9 +77,11 @@ export const clearExpiredToken = () => {
 
 
 export const useGenerateToken = () => {
-  return useMutation({
-    mutationFn: generateToken, 
-  });
+  return useMutation({ mutationFn: generateToken }); 
+};
+
+export const useGeneratePassphrase = () => {
+  return useMutation({ mutationFn: generatePassphrase }); 
 };
 
 export default api;

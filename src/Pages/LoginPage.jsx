@@ -1,11 +1,26 @@
 import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
-import { useGenerateToken, clearExpiredToken } from "../api";
+import { useGenerateToken, useGeneratePassphrase, clearExpiredToken } from "../api";
 
 const LoginPage = () => {
   const [keySeed, setKeySeed] = useState("");
   const navigate = useNavigate();
-  const loginMutation = useGenerateToken(); 
+  const loginMutation = useGenerateToken();
+  const passphraseMutation = useGeneratePassphrase(); // API call for generating a passphrase
+
+  const handleGeneratePassphrase = async () => {
+    passphraseMutation.mutate(null, {
+      onSuccess: (data) => {
+        setKeySeed(data.seed); // Assuming API response has 'seed'
+        navigator.clipboard.writeText(data.seed);
+        alert("Passphrase copied to clipboard!");
+      },
+      onError: (error) => {
+        console.error("Error generating passphrase:", error);
+        alert("Failed to generate passphrase. Try again.");
+      },
+    });
+  };
 
   const handleLogin = () => {
     if (!keySeed.trim()) {
@@ -19,7 +34,7 @@ const LoginPage = () => {
         navigate("/userdata");
       },
       onError: (error) => {
-        console.error("❌ Login Error:", error);
+        console.error("Login Error:", error);
         if (error.response?.data?.code === "token_not_valid") {
           clearExpiredToken();
         }
@@ -31,7 +46,7 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-900 to-blue-800">
       <div className="flex rounded-2xl shadow-lg overflow-hidden w-3/4 lg:w-2/3">
-        <div className="w-1/2 p-8 text-white bg-blue-900 relative">
+        <div className="w-1/2 p-8 text-white bg-blue-900">
           <h1 className="text-3xl font-bold mb-4 flex items-center">
             <svg
               className="w-10 h-10 mr-2 text-purple-500"
@@ -44,13 +59,13 @@ const LoginPage = () => {
             Password Manager
           </h1>
           <p className="mb-6">
-            Login to your account with a seed. We handle security in a
-            privacy-focused, cloud-free, ad-free manner.
+            Login to your account with a seed. We handle security in a privacy-focused, cloud-free, ad-free manner.
           </p>
         </div>
 
         <div className="w-1/2 p-8 bg-blue-800 text-white flex flex-col justify-center rounded-r-2xl">
           <h2 className="text-3xl font-bold mb-6 text-center">Log In</h2>
+          
           <label className="text-blue-300 font-semibold">Key Seed</label>
           <input
             type="text"
@@ -59,6 +74,14 @@ const LoginPage = () => {
             value={keySeed}
             onChange={(e) => setKeySeed(e.target.value)}
           />
+
+          <button
+            className="w-full py-2 mt-2 bg-green-500 text-black font-bold rounded-lg hover:bg-green-600"
+            onClick={handleGeneratePassphrase}
+            disabled={passphraseMutation.isLoading}
+          >
+            {passphraseMutation.isLoading ? "Generating..." : "Generate Passphrase"}
+          </button>
 
           <button
             className="w-full py-2 mt-4 bg-gradient-to-r from-purple-500 to-purple-700 text-white font-bold rounded-lg hover:opacity-90"

@@ -99,7 +99,7 @@ const Userdata = () => {
               onChange={(e) => setNewFolderName(e.target.value)}
               className="bg-gray-200 text-black p-1 rounded-md flex-1"
             />
-            <button onClick={() => addFolderMutation.mutate(newFolderName)} className="bg-green-500 px-3 py-1 rounded-md text-white"> Add </button>
+            <button onClick={() => addFolderMutation.mutate(newFolderName)} className="bg-green-500 px-3 py-1 rounded-md text-black"> Add </button>
           </div>
 
           <table className="w-full border-collapse border border-gray-300 text-white">
