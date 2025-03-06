@@ -6,12 +6,12 @@ const LoginPage = () => {
   const [keySeed, setKeySeed] = useState("");
   const navigate = useNavigate();
   const loginMutation = useGenerateToken();
-  const passphraseMutation = useGeneratePassphrase(); // API call for generating a passphrase
+  const passphraseMutation = useGeneratePassphrase(); 
 
   const handleGeneratePassphrase = async () => {
     passphraseMutation.mutate(null, {
       onSuccess: (data) => {
-        setKeySeed(data.seed); // Assuming API response has 'seed'
+        setKeySeed(data.seed); 
         navigator.clipboard.writeText(data.seed);
         alert("Passphrase copied to clipboard!");
       },
