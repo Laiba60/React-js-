@@ -74,7 +74,6 @@ const LoginPage = () => {
             value={keySeed}
             onChange={(e) => setKeySeed(e.target.value)}
           />
-
           <button
             className="w-full py-2 mt-2 bg-green-500 text-black font-bold rounded-lg hover:bg-green-600"
             onClick={handleGeneratePassphrase}
