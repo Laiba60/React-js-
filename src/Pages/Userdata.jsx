@@ -1,69 +1,23 @@
 import { Shield, Settings, Eye, User, Trash2 } from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "../api";
+import ClipLoader from "react-spinners/ClipLoader"; 
+import { useFetchFolders } from "../hooks/useFetchFolders";
+import { useAddFolder } from "../hooks/useAddFolder";
+import { useUpdateFolder } from "../hooks/useUpdateFolder";
+import { useDeleteFolder } from "../hooks/useDeleteFolder";
 
 const Userdata = () => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [editFolderId, setEditFolderId] = useState(null);
   const [editFolderName, setEditFolderName] = useState("");
   const [newFolderName, setNewFolderName] = useState("");
 
-  const { data: folders = [], isLoading } = useQuery({
-    queryKey: ["folders"],
-    queryFn: async () => {
-      const response = await api.get("/folders");
-      return response.data.results || [];
-    },
-  });
-
-  const addFolderMutation = useMutation({
-    mutationFn: async (folderName) => {
-      const response = await api.post("/folders/", { title: folderName }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          "Content-Type": "application/json",
-        },
-      });
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(["folders"]);
-      setNewFolderName("");
-    },
-  });
-
-  const updateFolderMutation = useMutation({
-    mutationFn: async ({ folderId, title }) => {
-      await api.put(`/folders/${folderId}/`, { title }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          "Content-Type": "application/json",
-        },
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(["folders"]);
-      setEditFolderId(null);
-      setEditFolderName("");
-    },
-  });
-
-  const deleteFolderMutation = useMutation({
-    mutationFn: async (folderId) => {
-      await api.delete(`/folders/${folderId}/`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(["folders"]);
-    },
-  });
+  const { data: folders = [], isLoading } = useFetchFolders();
+  const addFolderMutation = useAddFolder();
+  const updateFolderMutation = useUpdateFolder();
+  const deleteFolderMutation = useDeleteFolder();
 
   return (
     <div className="bg-[#0E1A60] min-h-screen text-white p-4 md:p-6 w-screen">
@@ -99,9 +53,22 @@ const Userdata = () => {
               onChange={(e) => setNewFolderName(e.target.value)}
               className="bg-gray-200 text-black p-1 rounded-md flex-1"
             />
-            <button onClick={() => addFolderMutation.mutate(newFolderName)} className="bg-green-500 px-3 py-1 rounded-md text-black"> Add </button>
-          </div>
+           <button 
+  onClick={() => {
+    if (newFolderName.trim() !== "") { 
+      addFolderMutation.mutate(newFolderName, {
+        onSuccess: () => {
+          setNewFolderName("");  
+        }
+      });
+    }
+  }} 
+  className="bg-green-500 px-3 py-1 rounded-md text-black"
+> 
+  Add 
+</button>
 
+          </div>
           <table className="w-full border-collapse border border-gray-300 text-white">
             <thead>
               <tr className="bg-gray-700">
@@ -127,20 +94,39 @@ const Userdata = () => {
                         folder.title
                       )}
                     </td>
-                    <td className="border border-gray-300 p-2">
-                      <button
-                        className="text-blue-400 mr-2"
-                        onClick={() => {
-                          if (editFolderId === folder.id) {
-                            updateFolderMutation.mutate({ folderId: folder.id, title: editFolderName });
-                          } else {
+                    <td className="border border-gray-300 p-2 flex items-center space-x-2">
+                      {editFolderId === folder.id ? (
+                        <button
+                          className="text-blue-400 flex items-center"
+                          onClick={() => {
+                            updateFolderMutation.mutate(
+                              { folderId: folder.id, title: editFolderName },
+                              {
+                                onSuccess: () => {
+                                  setEditFolderId(null); 
+                                },
+                              }
+                            );
+                          }}
+                          disabled={updateFolderMutation.isPending}
+                        >
+                          {updateFolderMutation.isPending ? (
+                            <ClipLoader size={12} color="#fff" />
+                          ) : (
+                            "Save"
+                          )}
+                        </button>
+                      ) : (
+                        <button
+                          className="text-blue-400"
+                          onClick={() => {
                             setEditFolderId(folder.id);
                             setEditFolderName(folder.title);
-                          }
-                        }}
-                      >
-                        {editFolderId === folder.id ? "Save" : "Edit"}
-                      </button>
+                          }}
+                        >
+                          Edit
+                        </button>
+                      )}
                       <button className="text-red-400" onClick={() => deleteFolderMutation.mutate(folder.id)}> 
                         <Trash2 size={16} /> 
                       </button>

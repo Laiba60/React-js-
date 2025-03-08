@@ -18,14 +18,13 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-
 const generateToken = async (passPhrase) => {
   try {
     const response = await api.post("/user/generate-token/", {
       pass_phrase: passPhrase.trim(),
     });
 
-    console.log("🔍 Full API Response:", response.data);
+    console.log(" Full API Response:", response.data);
 
     if (!response.data?.access) {
       throw new Error("Invalid API response. Missing access token.");
