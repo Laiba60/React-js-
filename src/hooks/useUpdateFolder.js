@@ -1,12 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../api";
+import { getAuthHeaders } from "../utils/header.js";
 
 const updateFolder = async ({ folderId, title }) => {
   const response = await api.put(`/folders/${folderId}/`, { title }, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-      "Content-Type": "application/json",
-    },
+     headers: getAuthHeaders() 
   });
   return response.data; 
 };

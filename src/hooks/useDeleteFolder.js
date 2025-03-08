@@ -1,11 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../api";
+import { getAuthHeaders } from "../utils/header.js";
 
 const deleteFolder = async (folderId) => {
   await api.delete(`/folders/${folderId}/`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-    },
+    headers: getAuthHeaders() 
   });
 };
 
