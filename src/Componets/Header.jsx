@@ -16,7 +16,7 @@ const Header = () => {
   const [showSearch, setShowSearch] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-950 to-blue-800 text-white">
+    <div className="min-h-screen w-screen  bg-gradient-to-r from-blue-950 to-blue-800 text-white">
       
       <header className="flex justify-between items-center p-4 sm:p-6">
       <Shield className="text-white ml-30" size={40} />

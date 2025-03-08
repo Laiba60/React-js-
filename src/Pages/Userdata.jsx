@@ -37,7 +37,7 @@ const Userdata = () => {
         </div>
         <div className="flex space-x-2">
           <button className="bg-purple-500 p-2 rounded-full" onClick={() => navigate("/generate")}> <Settings className="text-gray-300" size={20} /> </button>
-          <button className="bg-purple-500 p-2 rounded-full" onClick={() => navigate("/login")}> <Eye className="text-gray-300" size={20} /> </button>
+          <button className="bg-purple-500 p-2 rounded-full" onClick={() => navigate("/logn")}> <Eye className="text-gray-300" size={20} /> </button>
           <button className="bg-purple-500 p-2 rounded-full"> <User className="text-gray-300" size={20} /> </button>
         </div>
       </header>

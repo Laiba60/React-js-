@@ -106,7 +106,7 @@ const PasswordManager = () => {
        
         <div className="flex flex-wrap justify-end gap-4 items-center mt-6">
           <button className="bg-[#101E71] text-black py-2 px-4 rounded-lg">Cancel</button>
-          <button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-2 px-4 rounded-lg">
+          <button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-2 px-4 rounded-lg" onClick={()=>navigate('/generate')}>
             OK
           </button>
         </div>

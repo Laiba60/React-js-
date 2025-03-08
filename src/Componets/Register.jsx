@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 const RegisterPage = () => {
     const navigation=useNavigate();
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-900 to-blue-800">
+    <div className="min-h-screen w-screen flex items-center justify-center bg-gradient-to-r from-blue-900 to-blue-800">
       <div className="flex rounded-2xl shadow-lg overflow-hidden w-3/4 lg:w-2/3">
         <div className="w-1/2 p-8 text-white bg-blue-900 relative">
           <h1 className="text-3xl font-bold mb-4 flex items-center">
